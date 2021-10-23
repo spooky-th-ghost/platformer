@@ -9,7 +9,14 @@ pub struct Body {
     velocity: Vec2,
     is_grounded: bool,
     left_wall: bool,
-    right_wall: bool
+    right_wall: bool,
+    surface: Option<Collider>,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum Collider {
+    Solid,
+    Thin,
 }
 
 impl Body {
@@ -18,7 +25,8 @@ impl Body {
             velocity: Vec2::ZERO,
             is_grounded: true,
             left_wall: false,
-            right_wall: false
+            right_wall: false,
+            surface: None,
         }
     }
 
@@ -40,10 +48,13 @@ pub struct Gravity {
     force: f32,
 }
 
+pub struct Position{center: Vec3}
+
 pub struct DebugStats {
     pub velocity: Vec2,
     pub position: Vec3,
     pub is_grounded: bool,
+    pub surface: Option<Collider>,
 }
 
 fn setup(
@@ -115,12 +126,13 @@ fn setup(
 
     coms
     .spawn_bundle(SpriteBundle {
-        sprite: Sprite::new(Vec2::new(600.0, 30.0)),
+        sprite: Sprite::new(Vec2::new(600.0, 10.0)),
         material: materials.add(Color::BLACK.into()),
         transform: Transform::from_xyz(150.0, -200.0, 0.0),
         ..Default::default()
     })
-    .insert(Collider::Solid);
+    .insert(Position{center: (Vec3::new(150.0, -200.0, 0.0))})
+    .insert(Collider::Thin);
 
     coms
     .spawn_bundle(SpriteBundle {
@@ -129,6 +141,7 @@ fn setup(
         transform: Transform::from_xyz(-150.0, 0.0, 0.0),
         ..Default::default()
     })
+    .insert(Position{center:(Vec3::new(-150.0, 0.0, 0.0))})
     .insert(Collider::Solid);
 
     coms
@@ -138,34 +151,47 @@ fn setup(
         transform: Transform::from_xyz(20.0, 0.0, 0.0),
         ..Default::default()
     })
+    .insert(Position{center:(Vec3::new(20.0, 0.0, 0.0))})
     .insert(Collider::Solid);
 }
 
 pub fn body_collision_system(
-    mut body_query: Query<(&mut Body, &Transform, &Sprite)>,
-    collider_query: Query<(&Transform, &Sprite), With<Collider>>,
+    mut body_query: Query<(&mut Body, &mut Transform, &Sprite)>,
+    collider_query: Query<(&Position, &Sprite, &Collider)>,
 ) {
-    for(mut body, body_transform, body_sprite) in body_query.iter_mut() {
+    for(mut body, mut body_transform, body_sprite) in body_query.iter_mut() {
         body.is_grounded = false;
         body.left_wall = false;
         body.right_wall = false;
+        body.surface = None;
         // check collision with walls
-        for (collider_transform, collider_sprite) in collider_query.iter() {
+        for (collider_position, collider_sprite, collider_type) in collider_query.iter() {
             let collision = collide(
                 body_transform.translation,
                 body_sprite.size,
-                collider_transform.translation,
+                collider_position.center,
                 collider_sprite.size,
             );
-            if let Some(collision) = collision {
+            if let Some(collision) = &collision {
                 match collision {
                     Collision::Top => {
                         body.is_grounded = true;
                         body.velocity.y = 0.0;
+                        body.surface = Some(collider_type.clone());
+                        body_transform.translation.y += 1.0;
                     },
-                    Collision::Bottom => body.velocity.y = 0.0,
-                    Collision::Left => body.right_wall = true,
-                    Collision::Right => body.left_wall = true,
+                    Collision::Bottom => {
+                        body.velocity.y = 0.0;
+                        body_transform.translation.y -= 1.0;
+                    },
+                    Collision::Left => {
+                        body.right_wall = true;
+                        body_transform.translation.x -=1.0;
+                    },
+                    Collision::Right => {
+                        body.left_wall = true;
+                        body_transform.translation.x +=1.0;
+                    },
                 }
             }
         }
@@ -214,6 +240,21 @@ pub fn player_movement_system(
             direction += 1.0;
         }
 
+        if keyboard_input.pressed(KeyCode::S) {
+            if body.is_grounded {
+                if let Some(surface)  = body.surface {
+                    match surface {
+                        Collider::Thin => {
+                            transform.translation.y -= 20.0;
+                            body.is_grounded = false;
+                            body.velocity.y = -player.jump_height / 2.0;
+                        },
+                        _ => (),
+                    }
+                }
+            }
+        }
+
         if keyboard_input.pressed(KeyCode::Space) {
             if body.is_grounded {
                 transform.translation.y += 5.0;
@@ -244,17 +285,16 @@ pub fn apply_physics(
 
 pub fn debug_physics(stats: Res<DebugStats>, mut query: Query<&mut Text>) {
     let mut text = query.single_mut().unwrap();
-    text.sections[0].value = format!("Velocity: {}", stats.velocity);
+    text.sections[1].value = format!("Velocity: {}", stats.velocity);
     text.sections[2].value = format!("Position: {}", stats.position);
-    text.sections[1].value = format!("Is Grounded: {}", stats.is_grounded);
+    text.sections[0].value = format!("Is Grounded: {:?}", stats.surface);
 
 }
 
 pub fn update_physics_debug(mut stats: ResMut<DebugStats>, query: Query<(&Body, &Transform), With<Player>>) {
     if let Ok((body, transform)) = query.single() {
         stats.velocity = body.velocity;
-        stats.position = transform.translation;
-        stats.is_grounded = body.right_wall;
+        stats.surface = body.surface;
     }
 }
 
@@ -268,7 +308,7 @@ impl Plugin for PlatformPlayerPlugin {
         .add_plugin(Physics2dPlugin)
         .insert_resource(Gravity {force: -500.0})
         .insert_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1)))
-        .insert_resource(DebugStats {velocity: Vec2::ZERO, position: Vec3::ZERO, is_grounded: true})
+        .insert_resource(DebugStats {velocity: Vec2::ZERO, position: Vec3::ZERO, is_grounded: true, surface: Some(Collider::Solid)})
         .add_startup_system(setup.system())
         .add_system(player_movement_system.system())
         .add_system(body_collision_system.system())
