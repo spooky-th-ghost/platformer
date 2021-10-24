@@ -1,5 +1,7 @@
 mod breakout;
 mod platform_engine;
+mod physics;
+mod player;
 mod prelude {
     pub use bevy::{
         prelude::*,
@@ -9,6 +11,8 @@ mod prelude {
     pub use bevy_physimple::prelude::*;
     pub use crate::breakout::*;
     pub use crate::platform_engine::*;
+    pub use crate::physics::*;
+    pub use crate::player::*;
 }
 use prelude::*;
 
