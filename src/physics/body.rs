@@ -82,7 +82,6 @@ impl Body {
                 }
             }
         }
-        println!("{:?}" ,self);
     }
 }
 
@@ -112,13 +111,21 @@ pub fn body_collision_system(
     }
 }
 
-pub fn apply_physics(
+pub fn apply_gravity(
     time: Res<Time>,
     gravity: Res<Gravity>,
     mut query: Query<(&mut Body, &mut Transform)>,
 ) {
     for(mut body, mut transform) in query.iter_mut() {
         body.apply_gravity(&time, &gravity);
+    }
+}
+
+pub fn apply_velocity(
+    time: Res<Time>,
+    mut query: Query<(&mut Body, &mut Transform)>,
+) {
+    for(mut body, mut transform) in query.iter_mut() {
         body.apply_velocity(&mut transform, &time);
     }
 }

@@ -1,3 +1,5 @@
+use bevy::ecs::world;
+
 use crate::prelude::*;
 
 #[derive(Debug, Clone, Copy)]
@@ -17,6 +19,13 @@ pub struct DebugStats {
     pub position: Vec3,
     pub is_grounded: bool,
     pub surface: Option<Collider>,
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
+pub enum PhysicsSystem {
+    UpdateVelocity,
+    Collision,
+    Movement,
 }
 
 pub fn debug_physics(stats: Res<DebugStats>, mut query: Query<&mut Text>) {

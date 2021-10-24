@@ -17,6 +17,7 @@ mod prelude {
 use prelude::*;
 
 fn main() {
+    
     App::build()
         .add_plugin(PlatformPlayerPlugin)
         .run();

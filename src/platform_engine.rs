@@ -98,6 +98,7 @@ fn setup(
     .insert(Collider::Solid);
 }
 
+
 pub struct PlatformPlayerPlugin;
 
 impl Plugin for PlatformPlayerPlugin {
@@ -109,9 +110,13 @@ impl Plugin for PlatformPlayerPlugin {
         .insert_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1)))
         .insert_resource(DebugStats {velocity: Vec2::ZERO, position: Vec3::ZERO, is_grounded: true, surface: Some(Collider::Solid)})
         .add_startup_system(setup.system())
-        .add_system(player_movement_system.system())
-        .add_system(body_collision_system.system())
-        .add_system(apply_physics.system())
+        .add_system_set(SystemSet::new()
+            .label(PhysicsSystem::UpdateVelocity)
+            .with_system(player_movement_system.system())
+            .with_system(apply_gravity.system())
+            .with_system(body_collision_system.system())
+        )
+        .add_system(apply_velocity.system().after(PhysicsSystem::Movement))
         .add_system(update_physics_debug.system())
         .add_system(debug_physics.system())
         .add_system(bevy::input::system::exit_on_esc_system.system());
