@@ -71,7 +71,7 @@ fn setup(
     .spawn_bundle(SpriteBundle {
         sprite: Sprite::new(Vec2::new(600.0, 100.0)),
         material: materials.add(Color::BLACK.into()),
-        transform: Transform::from_xyz(150.0, -300.0, 0.0),
+        transform: Transform::from_xyz(150.0, -200.0, 0.0),
         ..Default::default()
     })
     .insert(Position{center: (Vec3::new(150.0, -200.0, 0.0))})
@@ -79,7 +79,7 @@ fn setup(
 
     coms
     .spawn_bundle(SpriteBundle {
-        sprite: Sprite::new(Vec2::new(600.0, 10.0)),
+        sprite: Sprite::new(Vec2::new(600.0, 20.0)),
         material: materials.add(Color::BLACK.into()),
         transform: Transform::from_xyz(-150.0, -100.0, 0.0),
         ..Default::default()
@@ -91,10 +91,10 @@ fn setup(
     .spawn_bundle(SpriteBundle {
         sprite: Sprite::new(Vec2::new(60.0, 280.0)),
         material: materials.add(Color::BLACK.into()),
-        transform: Transform::from_xyz(100.0, 20.0, 0.0),
+        transform: Transform::from_xyz(300.0, 20.0, 0.0),
         ..Default::default()
     })
-    .insert(Position{center:(Vec3::new(100.0, 20.0, 0.0))})
+    .insert(Position{center:(Vec3::new(300.0, 20.0, 0.0))})
     .insert(Collider::Solid);
 }
 

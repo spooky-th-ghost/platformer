@@ -27,9 +27,9 @@ pub fn debug_physics(stats: Res<DebugStats>, mut query: Query<&mut Text>) {
 
 }
 
-pub fn update_physics_debug(mut stats: ResMut<DebugStats>, query: Query<&Body, With<Player>>) {
-    if let Ok(body) = query.single() {
-        stats.velocity = body.velocity;
+pub fn update_physics_debug(mut stats: ResMut<DebugStats>, query: Query<(&Transform, &Body), With<Player>>) {
+    if let Ok((transform, body)) = query.single() {
+        stats.position = transform.translation;
         stats.surface = body.surface;
     }
 }

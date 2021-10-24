@@ -1,5 +1,5 @@
 use crate::prelude::*;
-
+#[derive(Debug)]
 pub struct Body {
     pub velocity: Vec2,
     pub is_grounded: bool,
@@ -31,25 +31,21 @@ impl Body {
     pub fn apply_velocity(self: &mut Self, transform: &mut Transform, time: &Time) {
         transform.translation += time.delta_seconds() * Vec3::new(self.velocity.x, self.velocity.y, 0.0);
     }
-
+    
     pub fn move_to_collision(self: &mut Self, transform: &mut Transform, sprite: &Sprite, collider: &Collider, collider_pos: &Position, collider_sprite: &Sprite, collision: &Collision) {
-
-
-
-        let calc_true_offset = |s_size: f32, s_pos: f32, c_size: f32, c_pos: f32, s_dir:i8| -> f32 {
+        let calc_true_offset = |s_size: f32, c_size: f32, c_pos: f32, s_dir:i8| -> f32 {
             let s_offset = s_size / 2.0;
             let c_offset = c_size / 2.0;
-            
-            let s_edge = s_pos + (s_dir as f32* (s_offset));
-            let c_edge = c_pos - (s_dir as f32 * (c_offset));
-            return s_edge+c_edge;
+            let s_edge = s_dir as f32* (s_offset);
+            let c_edge = s_dir as f32 * (c_offset);
+            return c_pos+(c_edge+s_edge);
         };
 
         match collider {
             Collider::Thin => {
                 match collision  {
                     Collision::Top => {
-                        let offset = calc_true_offset(sprite.size.y, transform.translation.y, collider_sprite.size.y, collider_pos.center.y, -1);
+                        let offset = calc_true_offset(sprite.size.y, collider_sprite.size.y, collider_pos.center.y, 1);
                         transform.translation.y = offset;
                         self.surface = Some(collider.clone());
                         self.is_grounded = true;
@@ -60,28 +56,33 @@ impl Body {
             Collider::Solid => {
                 match collision  {
                     Collision::Bottom => {
-                        let offset = calc_true_offset(sprite.size.y, transform.translation.y, collider_sprite.size.y, collider_pos.center.y, 1);
-                        transform.translation.y = offset;
+                        let new_center = calc_true_offset(sprite.size.y, collider_sprite.size.y, collider_pos.center.y, -1);
+                        transform.translation.y = new_center;
+                        self.velocity.y = 0.0;
                     },
                     Collision::Top => {
-                        let offset = calc_true_offset(sprite.size.y, transform.translation.y, collider_sprite.size.y, collider_pos.center.y, -1);
-                        transform.translation.y = offset;
+                        let new_center = calc_true_offset(sprite.size.y, collider_sprite.size.y, collider_pos.center.y, 1);
+                        transform.translation.y = new_center;
+                        self.velocity.y = 0.0;
                         self.surface = Some(collider.clone());
                         self.is_grounded = true;
                     },
                     Collision::Left => {
-                        let offset = calc_true_offset(sprite.size.x, transform.translation.x, collider_sprite.size.x, collider_pos.center.x, 1);
-                        transform.translation.x = offset;
+                        let new_center = calc_true_offset(sprite.size.x, collider_sprite.size.x, collider_pos.center.x, -1);
+                        transform.translation.x = new_center;
+                        self.velocity.x = 0.0;
                         self.right_wall = true;
                     },
                     Collision::Right => {
-                        let offset = calc_true_offset(sprite.size.x, transform.translation.x, collider_sprite.size.x, collider_pos.center.x, -1);
-                        transform.translation.x = offset;
+                        let new_center = calc_true_offset(sprite.size.x, collider_sprite.size.x, collider_pos.center.x, 1);
+                        transform.translation.x = new_center;
+                        self.velocity.x = 0.0;
                         self.right_wall = true;
                     }
                 }
             }
         }
+        println!("{:?}" ,self);
     }
 }
 
@@ -117,7 +118,7 @@ pub fn apply_physics(
     mut query: Query<(&mut Body, &mut Transform)>,
 ) {
     for(mut body, mut transform) in query.iter_mut() {
-        //body.apply_gravity(&time, &gravity);
+        body.apply_gravity(&time, &gravity);
         body.apply_velocity(&mut transform, &time);
     }
 }
