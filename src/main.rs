@@ -1,18 +1,15 @@
-mod breakout;
-mod platform_engine;
 mod physics;
 mod player;
+mod engine;
 mod prelude {
     pub use bevy::{
         prelude::*,
         render::pass::ClearColor,
         sprite::collide_aabb::{collide, Collision},
     };
-    pub use bevy_physimple::prelude::*;
-    pub use crate::breakout::*;
-    pub use crate::platform_engine::*;
     pub use crate::physics::*;
     pub use crate::player::*;
+    pub use crate::engine::*;
 }
 use prelude::*;
 

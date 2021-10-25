@@ -476,16 +476,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_physimple"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e469159292cdd8dcc22c5d646e8d8f376c90f2175782a750aeb99126bc025ae"
-dependencies = [
- "bevy",
- "serde",
-]
-
-[[package]]
 name = "bevy_reflect"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2537,7 +2527,6 @@ name = "platformer"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "bevy_physimple",
 ]
 
 [[package]]

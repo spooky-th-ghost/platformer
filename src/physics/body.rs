@@ -24,6 +24,10 @@ impl Body {
             let acceleration = gravity.force;
             self.velocity.y += time.delta_seconds() * acceleration;
             // translation.y += time.delta_seconds() * (self.velocity.y + time.delta_seconds() * acceleration / 2.0);
+        } else {
+            if self.velocity.y < 1.0 {
+                self.velocity.y = 0.0;
+            }
         }
         
     }
@@ -98,14 +102,53 @@ pub fn body_collision_system(
         // check collision with walls
         for (collider_position, collider_sprite, collider_type) in collider_query.iter() {
             let projected_pos= body_transform.translation + time.delta_seconds() * Vec3::new(body.velocity.x, body.velocity.y, 0.0);
-            let collision = collide(
+            let projected_collision = collide(
                 projected_pos,
                 body_sprite.size,
                 collider_position.center,
                 collider_sprite.size,
             );
-            if let Some(collision) = &collision {
+            if let Some(collision) = &projected_collision {
                 body.move_to_collision(&mut body_transform, body_sprite, collider_type, collider_position, collider_sprite, collision);
+            }
+
+            let ground_cast = collide(
+                body_transform.translation - Vec3::new(0.0,5.0,0.0),
+                body_sprite.size,
+                collider_position.center,
+                collider_sprite.size,
+            );
+            if let Some(_collision) = &ground_cast {
+                body.surface = Some(collider_type.clone());
+                match collider_type {
+                    Collider::Solid | Collider::Thin => body.is_grounded = true,
+                }
+            }
+
+            let right_cast = collide(
+                body_transform.translation + Vec3::new(5.0,0.0,0.0),
+                body_sprite.size,
+                collider_position.center,
+                collider_sprite.size,
+            );
+            if let Some(_collision) = &right_cast {
+                match collider_type {
+                    Collider::Solid => body.right_wall = true,
+                    _ => ()
+                } 
+            }
+
+            let left_cast = collide(
+                body_transform.translation + Vec3::new(-5.0,0.0,0.0),
+                body_sprite.size,
+                collider_position.center,
+                collider_sprite.size,
+            );
+            if let Some(_collision) = &left_cast {
+                match collider_type {
+                    Collider::Solid => body.left_wall = true,
+                    _ => ()
+                }   
             }
         }
     }
@@ -114,9 +157,9 @@ pub fn body_collision_system(
 pub fn apply_gravity(
     time: Res<Time>,
     gravity: Res<Gravity>,
-    mut query: Query<(&mut Body, &mut Transform)>,
+    mut query: Query<&mut Body>,
 ) {
-    for(mut body, mut transform) in query.iter_mut() {
+    for mut body in query.iter_mut() {
         body.apply_gravity(&time, &gravity);
     }
 }

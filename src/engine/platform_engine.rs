@@ -10,19 +10,6 @@ fn setup(
     //cameras
     coms.spawn_bundle(OrthographicCameraBundle::new_2d());
     coms.spawn_bundle(UiCameraBundle::default()); 
-    //player
-    coms
-        .spawn_bundle(SpriteBundle {
-            material: materials.add(Color::rgb(1.0, 0.0, 0.0).into()),
-            transform: Transform::from_xyz(0.0, -0.0, 1.0),
-            sprite: Sprite::new(Vec2::new(30.0, 60.0)),
-            ..Default::default()
-        })
-        .insert(Player {
-            speed: 500.0,
-            jump_height: 500.0
-        })
-        .insert(Body::new());
     
     coms.spawn_bundle(TextBundle {
         text: Text {
@@ -76,6 +63,7 @@ fn setup(
     })
     .insert(Position{center: (Vec3::new(150.0, -200.0, 0.0))})
     .insert(Collider::Solid);
+    //.insert(MovingPlatform::new(Vec2::new(150.0, -200.0),Vec2::new(250.0, 0.0),0.0));
 
     coms
     .spawn_bundle(SpriteBundle {
@@ -96,6 +84,22 @@ fn setup(
     })
     .insert(Position{center:(Vec3::new(300.0, 20.0, 0.0))})
     .insert(Collider::Solid);
+
+        //player
+    coms
+        .spawn_bundle(SpriteBundle {
+            material: materials.add(Color::rgb(1.0, 0.0, 0.0).into()),
+            transform: Transform::from_xyz(0.0, -0.0, 1.0),
+            sprite: Sprite::new(Vec2::new(30.0, 60.0)),
+            ..Default::default()
+        })
+        .insert(Player {
+            speed: 500.0,
+            jump_height: 500.0,
+            busy: 0.0,
+            direction: 0.0
+        })
+        .insert(Body::new());
 }
 
 
@@ -105,7 +109,6 @@ impl Plugin for PlatformPlayerPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app
         .add_plugins(DefaultPlugins)
-        .add_plugin(Physics2dPlugin)
         .insert_resource(Gravity {force: -500.0})
         .insert_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1)))
         .insert_resource(DebugStats {velocity: Vec2::ZERO, position: Vec3::ZERO, is_grounded: true, surface: Some(Collider::Solid)})
@@ -115,6 +118,8 @@ impl Plugin for PlatformPlayerPlugin {
             .with_system(player_movement_system.system())
             .with_system(apply_gravity.system())
             .with_system(body_collision_system.system())
+            .with_system(move_platforms.system())
+            .with_system(update_position.system())
         )
         .add_system(apply_velocity.system().after(PhysicsSystem::Movement))
         .add_system(update_physics_debug.system())

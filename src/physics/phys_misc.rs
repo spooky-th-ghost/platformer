@@ -1,12 +1,4 @@
-use bevy::ecs::world;
-
 use crate::prelude::*;
-
-#[derive(Debug, Clone, Copy)]
-pub enum Collider {
-    Solid,
-    Thin,
-}
 
 pub struct Gravity {
     pub force: f32,
@@ -24,8 +16,13 @@ pub struct DebugStats {
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum PhysicsSystem {
     UpdateVelocity,
-    Collision,
     Movement,
+}
+
+pub fn update_position (mut query: Query<(&mut Position, &Transform)>) {
+    for (mut pos, transform) in query.iter_mut() {
+        pos.center = transform.translation;
+    }
 }
 
 pub fn debug_physics(stats: Res<DebugStats>, mut query: Query<&mut Text>) {
