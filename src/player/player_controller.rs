@@ -22,12 +22,15 @@ pub fn player_movement_system(
             if player.busy == 0.0 {
                 player.direction -= 1.0;
             }
+             if body.left_wall {body.velocity.x = body.velocity.x.clamp(0.0,500.0)}
         }
 
-        if keyboard_input.pressed(KeyCode::D) && !body.right_wall {
+        if keyboard_input.pressed(KeyCode::D) {
             if player.busy == 0.0 {
                 player.direction += 1.0;
             }
+
+            if body.right_wall {body.velocity.x = body.velocity.x.clamp(-500.0,0.0)}
         }
 
         if keyboard_input.pressed(KeyCode::S) {
@@ -45,7 +48,7 @@ pub fn player_movement_system(
             }
         }
 
-        if keyboard_input.pressed(KeyCode::Space) {
+        if keyboard_input.just_pressed(KeyCode::Space) {
             if body.is_grounded {
                 transform.translation.y += 5.0;
                 body.is_grounded = false;
@@ -53,14 +56,14 @@ pub fn player_movement_system(
             } else {
                 if body.right_wall && player.busy == 0.0{
                     body.velocity.y = player.jump_height;
-                    player.direction = -1.5;
-                    player.busy = 0.5;
+                    player.direction = -1.0;
+                    player.busy = 0.175;
                 }
 
                 if body.left_wall && player.busy == 0.0 {
                     body.velocity.y = player.jump_height;
-                    player.direction = 1.5;
-                    player.busy = 0.5;
+                    player.direction = 1.0;
+                    player.busy = 0.175;
                 }
             }
 

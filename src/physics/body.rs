@@ -6,16 +6,18 @@ pub struct Body {
     pub left_wall: bool,
     pub right_wall: bool,
     pub surface: Option<Collider>,
+    pub use_gravity: bool
 }
 
 impl Body {
-    pub fn new() -> Self {
+    pub fn new(use_gravity: bool) -> Self {
         Body { 
             velocity: Vec2::ZERO,
             is_grounded: true,
             left_wall: false,
             right_wall: false,
             surface: None,
+            use_gravity,
         }
     }
 

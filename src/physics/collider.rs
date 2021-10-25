@@ -35,3 +35,5 @@ impl MovingPlatform {
       transform.translation = transform.translation.lerp_to_vec2(platform.end,time.delta_seconds());
     }
   }
+
+  

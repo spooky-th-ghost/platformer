@@ -6,7 +6,7 @@ fn setup(
     asset_server: Res<AssetServer>,
 ) {
     //Create Game Entitties
-
+    let pink_block = asset_server.load("sprites/tiles/pink_block.png");
     //cameras
     coms.spawn_bundle(OrthographicCameraBundle::new_2d());
     coms.spawn_bundle(UiCameraBundle::default()); 
@@ -85,6 +85,16 @@ fn setup(
     .insert(Position{center:(Vec3::new(300.0, 20.0, 0.0))})
     .insert(Collider::Solid);
 
+    coms
+    .spawn_bundle(SpriteBundle {
+        sprite: Sprite::new(Vec2::new(64.0, 64.0)),
+        material: materials.add(pink_block.into()),
+        transform: Transform::from_xyz(0.0, 0.0, 0.0),
+        ..Default::default()
+    })
+    .insert(Position{center:(Vec3::new(0.0, 0.0, 0.0))})
+    .insert(Collider::Solid);
+
         //player
     coms
         .spawn_bundle(SpriteBundle {
@@ -99,7 +109,7 @@ fn setup(
             busy: 0.0,
             direction: 0.0
         })
-        .insert(Body::new());
+        .insert(Body::new(true));
 }
 
 
@@ -109,7 +119,7 @@ impl Plugin for PlatformPlayerPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app
         .add_plugins(DefaultPlugins)
-        .insert_resource(Gravity {force: -500.0})
+        .insert_resource(Gravity {force: -1800.0})
         .insert_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1)))
         .insert_resource(DebugStats {velocity: Vec2::ZERO, position: Vec3::ZERO, is_grounded: true, surface: Some(Collider::Solid)})
         .add_startup_system(setup.system())
