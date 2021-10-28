@@ -6,6 +6,8 @@ mod prelude {
         prelude::*,
         render::pass::ClearColor,
         sprite::collide_aabb::{collide, Collision},
+        ecs::component::Component,
+        diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}
     };
     pub use crate::physics::*;
     pub use crate::player::*;
@@ -17,6 +19,8 @@ fn main() {
     
     App::build()
         .add_plugin(PlatformPlayerPlugin)
+        .add_plugin(LogDiagnosticsPlugin::default())
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .run();
 }
 

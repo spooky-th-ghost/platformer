@@ -22,7 +22,7 @@ impl Body {
     }
 
     pub fn apply_gravity(self: &mut Self, time: &Time, gravity: &Gravity) {
-        if !self.is_grounded {
+        if !self.is_grounded && self.use_gravity {
             let acceleration = gravity.force;
             self.velocity.y += time.delta_seconds() * acceleration;
             // translation.y += time.delta_seconds() * (self.velocity.y + time.delta_seconds() * acceleration / 2.0);
@@ -88,6 +88,9 @@ impl Body {
                 }
             }
         }
+    }
+    pub fn horizontal_collisions(&mut self){
+
     }
 }
 

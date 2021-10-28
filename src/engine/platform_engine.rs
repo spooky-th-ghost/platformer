@@ -7,6 +7,7 @@ fn setup(
 ) {
     //Create Game Entitties
     let pink_block = asset_server.load("sprites/tiles/pink_block.png");
+    let mouse: Handle<Texture> = asset_server.load("sprites/characters/mouse.png");
     //cameras
     coms.spawn_bundle(OrthographicCameraBundle::new_2d());
     coms.spawn_bundle(UiCameraBundle::default()); 
@@ -89,7 +90,7 @@ fn setup(
     .spawn_bundle(SpriteBundle {
         sprite: Sprite::new(Vec2::new(64.0, 64.0)),
         material: materials.add(pink_block.into()),
-        transform: Transform::from_xyz(0.0, 0.0, 0.0),
+        transform: Transform::from_xyz(-400.0, 0.0, 0.0),
         ..Default::default()
     })
     .insert(Position{center:(Vec3::new(0.0, 0.0, 0.0))})
@@ -98,9 +99,9 @@ fn setup(
         //player
     coms
         .spawn_bundle(SpriteBundle {
-            material: materials.add(Color::rgb(1.0, 0.0, 0.0).into()),
+            material: materials.add(mouse.into()),
             transform: Transform::from_xyz(0.0, -0.0, 1.0),
-            sprite: Sprite::new(Vec2::new(30.0, 60.0)),
+            sprite: Sprite::new(Vec2::new(64.0, 64.0)),
             ..Default::default()
         })
         .insert(Player {
