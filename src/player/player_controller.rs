@@ -10,15 +10,16 @@ pub struct Player {
 pub fn player_movement_system(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Player, &mut Body, &mut Transform)>,
+    mut query: Query<(&mut Player, &mut Body, &mut Transform, &mut Sprite)>,
 ) {
-    if let Ok((mut player, mut body, mut transform)) = query.single_mut() {
+    if let Ok((mut player, mut body, mut transform, mut sprite)) = query.single_mut() {
         player.busy -=  time.delta_seconds();
         player.busy = player.busy.clamp(0.0,5.0);
         if player.busy == 0.0 {player.direction = 0.0}
 
         
         if keyboard_input.pressed(KeyCode::A) && !body.left_wall{
+            sprite.flip_x = false;
             if player.busy == 0.0 {
                 player.direction -= 1.0;
             }
@@ -26,6 +27,7 @@ pub fn player_movement_system(
         }
 
         if keyboard_input.pressed(KeyCode::D) {
+            sprite.flip_x = true;
             if player.busy == 0.0 {
                 player.direction += 1.0;
             }
@@ -37,7 +39,7 @@ pub fn player_movement_system(
             if body.is_grounded {
                 if let Some(surface)  = body.surface {
                     match surface {
-                        Collider::Thin => {
+                        ColliderType::Thin => {
                             transform.translation.y -= 20.0;
                             body.is_grounded = false;
                             body.velocity.y = -player.jump_height / 2.0;

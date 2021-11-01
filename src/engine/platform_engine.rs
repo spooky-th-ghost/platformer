@@ -74,7 +74,7 @@ fn setup(
         ..Default::default()
     })
     .insert(Position{center:(Vec3::new(-150.0, -100.0, 0.0))})
-    .insert(Collider::Thin);
+    .insert(ColliderType::Thin);
 
     coms
     .spawn_bundle(SpriteBundle {
@@ -84,7 +84,7 @@ fn setup(
         ..Default::default()
     })
     .insert(Position{center:(Vec3::new(300.0, 20.0, 0.0))})
-    .insert(Collider::Solid);
+    .insert(ColliderType::Solid);
 
     coms
     .spawn_bundle(SpriteBundle {
@@ -94,7 +94,7 @@ fn setup(
         ..Default::default()
     })
     .insert(Position{center:(Vec3::new(0.0, 0.0, 0.0))})
-    .insert(Collider::Solid);
+    .insert(ColliderType::Solid);
 
         //player
     coms

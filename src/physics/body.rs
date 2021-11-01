@@ -5,7 +5,7 @@ pub struct Body {
     pub is_grounded: bool,
     pub left_wall: bool,
     pub right_wall: bool,
-    pub surface: Option<Collider>,
+    pub surface: Option<ColliderType>,
     pub use_gravity: bool
 }
 
@@ -47,19 +47,19 @@ impl Body {
             return c_pos+(c_edge+s_edge);
         };
 
-        match collider {
-            Collider::Thin => {
+        match collider.collider_type {
+            ColliderType::Thin => {
                 match collision  {
                     Collision::Top => {
                         let offset = calc_true_offset(sprite.size.y, collider_sprite.size.y, collider_pos.center.y, 1);
                         transform.translation.y = offset;
-                        self.surface = Some(collider.clone());
+                        self.surface = Some(collider.collider_type.clone());
                         self.is_grounded = true;
                     },
                     _ => ()
                 }
             },
-            Collider::Solid => {
+            ColliderType::Solid => {
                 match collision  {
                     Collision::Bottom => {
                         let new_center = calc_true_offset(sprite.size.y, collider_sprite.size.y, collider_pos.center.y, -1);
@@ -70,7 +70,7 @@ impl Body {
                         let new_center = calc_true_offset(sprite.size.y, collider_sprite.size.y, collider_pos.center.y, 1);
                         transform.translation.y = new_center;
                         self.velocity.y = 0.0;
-                        self.surface = Some(collider.clone());
+                        self.surface = Some(collider.collider_type.clone());
                         self.is_grounded = true;
                     },
                     Collision::Left => {
@@ -105,56 +105,56 @@ pub fn body_collision_system(
         body.right_wall = false;
         body.surface = None;
         // check collision with walls
-        for (collider_position, collider_sprite, collider_type) in collider_query.iter() {
-            let projected_pos= body_transform.translation + time.delta_seconds() * Vec3::new(body.velocity.x, body.velocity.y, 0.0);
-            let projected_collision = collide(
-                projected_pos,
-                body_sprite.size,
-                collider_position.center,
-                collider_sprite.size,
-            );
-            if let Some(collision) = &projected_collision {
-                body.move_to_collision(&mut body_transform, body_sprite, collider_type, collider_position, collider_sprite, collision);
-            }
+        for (collider_position, collider_sprite, collider) in collider_query.iter() {
+            // let projected_pos= body_transform.translation + time.delta_seconds() * Vec3::new(body.velocity.x, body.velocity.y, 0.0);
+            // let projected_collision = collide(
+            //     projected_pos,
+            //     body_sprite.size,
+            //     collider_position.center,
+            //     collider_sprite.size,
+            // );
+            // if let Some(collision) = &projected_collision {
+            //     body.move_to_collision(&mut body_transform, body_sprite, collider, collider_position, collider_sprite, collision);
+            // }
 
-            let ground_cast = collide(
-                body_transform.translation - Vec3::new(0.0,5.0,0.0),
-                body_sprite.size,
-                collider_position.center,
-                collider_sprite.size,
-            );
-            if let Some(_collision) = &ground_cast {
-                body.surface = Some(collider_type.clone());
-                match collider_type {
-                    Collider::Solid | Collider::Thin => body.is_grounded = true,
-                }
-            }
+            // let ground_cast = collide(
+            //     body_transform.translation - Vec3::new(0.0,5.0,0.0),
+            //     body_sprite.size,
+            //     collider_position.center,
+            //     collider_sprite.size,
+            // );
+            // if let Some(_collision) = &ground_cast {
+            //     body.surface = Some(collider.collider_type.clone());
+            //     match colider.collider_type {
+            //         Collider::Solid | Collider::Thin => body.is_grounded = true,
+            //     }
+            // }
 
-            let right_cast = collide(
-                body_transform.translation + Vec3::new(5.0,0.0,0.0),
-                body_sprite.size,
-                collider_position.center,
-                collider_sprite.size,
-            );
-            if let Some(_collision) = &right_cast {
-                match collider_type {
-                    Collider::Solid => body.right_wall = true,
-                    _ => ()
-                } 
-            }
+            // let right_cast = collide(
+            //     body_transform.translation + Vec3::new(5.0,0.0,0.0),
+            //     body_sprite.size,
+            //     collider_position.center,
+            //     collider_sprite.size,
+            // );
+            // if let Some(_collision) = &right_cast {
+            //     match collider_type {
+            //         Collider::Solid => body.right_wall = true,
+            //         _ => ()
+            //     } 
+            // }
 
-            let left_cast = collide(
-                body_transform.translation + Vec3::new(-5.0,0.0,0.0),
-                body_sprite.size,
-                collider_position.center,
-                collider_sprite.size,
-            );
-            if let Some(_collision) = &left_cast {
-                match collider_type {
-                    Collider::Solid => body.left_wall = true,
-                    _ => ()
-                }   
-            }
+            // let left_cast = collide(
+            //     body_transform.translation + Vec3::new(-5.0,0.0,0.0),
+            //     body_sprite.size,
+            //     collider_position.center,
+            //     collider_sprite.size,
+            // );
+            // if let Some(_collision) = &left_cast {
+            //     match collider_type {
+            //         Collider::Solid => body.left_wall = true,
+            //         _ => ()
+            //     }   
+            // }
         }
     }
 }
