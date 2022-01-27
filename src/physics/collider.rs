@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Debug, Clone, Copy, Reflect, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ColliderType {
     Solid,
     Thin,
@@ -23,7 +23,7 @@ impl Collider {
   }
 
   pub fn edges(&self) -> Vec<GeoLine> {
-    let my_edges: Vec<GeoLine>;
+    let mut my_edges: Vec<GeoLine> = Vec::new();
     let corner_1 = Vec2::new(self.position.x - (self.size.x / 2.0), self.position.y + (self.size.y / 2.0));
     let corner_2 = Vec2::new(self.position.x + (self.size.x / 2.0), self.position.y + (self.size.y / 2.0));
     let corner_3 = Vec2::new(self.position.x + (self.size.x / 2.0), self.position.y - (self.size.y / 2.0));

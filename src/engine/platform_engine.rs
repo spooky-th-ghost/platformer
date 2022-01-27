@@ -1,5 +1,21 @@
 use crate::prelude::*;
 
+
+
+
+fn spawn_platform(commands: &mut Commands,mut materials: ResMut<Assets<ColorMaterial>>, size: Vec2, position: Vec3, collider_type: ColliderType)  {
+    commands    
+        .spawn_bundle(SpriteBundle {
+            sprite: Sprite::new(size),
+            material: materials.add(Color::BLACK.into()),
+            transform: Transform::from_translation(position),
+            ..Default::default()
+        })
+        .insert(Collider::new(collider_type,position.to_vec2(),size));
+}
+
+
+
 fn setup(
     mut coms: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
@@ -55,16 +71,7 @@ fn setup(
         ..Default::default()
     });
 
-    coms
-    .spawn_bundle(SpriteBundle {
-        sprite: Sprite::new(Vec2::new(600.0, 100.0)),
-        material: materials.add(Color::BLACK.into()),
-        transform: Transform::from_xyz(150.0, -200.0, 0.0),
-        ..Default::default()
-    })
-    .insert(Position{center: (Vec3::new(150.0, -200.0, 0.0))})
-    .insert(Collider::Solid);
-    //.insert(MovingPlatform::new(Vec2::new(150.0, -200.0),Vec2::new(250.0, 0.0),0.0));
+    //spawn_platform(&mut coms, materials,Vec2::new(600.0,100.0),Vec3::new(150.0,-200.0, 0.0), ColliderType::Solid);
 
     coms
     .spawn_bundle(SpriteBundle {
@@ -122,17 +129,17 @@ impl Plugin for PlatformPlayerPlugin {
         .add_plugins(DefaultPlugins)
         .insert_resource(Gravity {force: -1800.0})
         .insert_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1)))
-        .insert_resource(DebugStats {velocity: Vec2::ZERO, position: Vec3::ZERO, is_grounded: true, surface: Some(Collider::Solid)})
+        .insert_resource(DebugStats {velocity: Vec2::ZERO, position: Vec3::ZERO, is_grounded: true, surface: Some(ColliderType::Solid)})
         .add_startup_system(setup.system())
         .add_system_set(SystemSet::new()
-            .label(PhysicsSystem::UpdateVelocity)
+            .label("Update Velocity")
             .with_system(player_movement_system.system())
             .with_system(apply_gravity.system())
             .with_system(body_collision_system.system())
             .with_system(move_platforms.system())
             .with_system(update_position.system())
         )
-        .add_system(apply_velocity.system().after(PhysicsSystem::Movement))
+        .add_system(apply_velocity.system().after("Movement"))
         .add_system(update_physics_debug.system())
         .add_system(debug_physics.system())
         .add_system(bevy::input::system::exit_on_esc_system.system());

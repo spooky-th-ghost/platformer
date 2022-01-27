@@ -63,7 +63,6 @@ pub struct DebugStats {
     pub surface: Option<ColliderType>,
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum PhysicsSystem {
     UpdateVelocity,
     Movement,
